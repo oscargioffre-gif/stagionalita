@@ -104,6 +104,25 @@ STOCKS = {
 CACHE_DIR = "data_cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
+# Yahoo Finance uses different tickers than investing.com for some stocks.
+# This map: our display ticker → list of Yahoo tickers to try in order.
+YAHOO_ALIASES = {
+    "STM.MI":   ["STMMI.MI", "STM.MI", "STM"],          # STMicro: Yahoo sometimes uses STMMI
+    "BCU.MI":   ["BC.MI", "BCU.MI"],                      # Brunello Cucinelli: Yahoo uses BC
+    "ENPH":     ["ENPH", "ENPH.O"],                       # Enphase: retry with NASDAQ suffix
+    "BRE.MI":   ["BRE.MI", "BREMI.MI"],                   # Brembo
+    "SFER.MI":  ["SFER.MI", "SFRGF"],                     # Ferragamo
+    "IG.MI":    ["IG.MI", "IGMI.MI"],                     # Italgas
+    "BPE.MI":   ["BPE.MI", "BPEMI.MI"],                   # BPER
+    "MARR.MI":  ["MARR.MI"],                              # MARR
+    "UNI.MI":   ["UNI.MI", "UNPI.MI"],                    # Unipol
+    "BMED.MI":  ["BMED.MI"],                              # Mediolanum
+    "FBK.MI":   ["FBK.MI"],                               # Fineco
+    "TIT.MI":   ["TIT.MI", "TITR.MI"],                    # Telecom Italia
+    "STLAM.MI": ["STLAM.MI", "STLA"],                    # Stellantis (also NYSE)
+    "RACE.MI":  ["RACE.MI", "RACE"],                      # Ferrari (also NYSE)
+}
+
 
 # ═══════════════════════════════════════════════════════════════
 # DATA FETCHING — Multi-source with fallbacks
@@ -130,16 +149,16 @@ def _load_cache(ticker):
     return None, None
 
 
-def fetch_monthly_returns_yfinance(ticker, years=11):
-    """Primary source: Yahoo Finance."""
+def _try_yfinance(yf_ticker, years=11):
+    """Try downloading from Yahoo Finance with a specific ticker string."""
     try:
         end = datetime.now()
         start = end - timedelta(days=365 * years + 60)
-        df = yf.download(ticker, start=start.strftime('%Y-%m-%d'),
+        df = yf.download(yf_ticker, start=start.strftime('%Y-%m-%d'),
                          end=end.strftime('%Y-%m-%d'), interval='1mo',
                          progress=False, timeout=20)
         if df is None or len(df) < 24:
-            return None, "yfinance: insufficient data"
+            return None
 
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
@@ -155,69 +174,178 @@ def fetch_monthly_returns_yfinance(ticker, years=11):
             y, m = int(row['Year']), int(row['Month'])
             result[f"{y}-{m}"] = round(row['Return'], 2)
 
-        _save_cache(ticker, result)
-        return result, "yfinance"
+        if len(result) >= 24:
+            return result
+        return None
+    except Exception:
+        return None
 
-    except Exception as e:
-        log.warning(f"yfinance failed for {ticker}: {e}")
-        return None, f"yfinance error: {e}"
+
+def fetch_monthly_returns_yfinance(ticker, years=11):
+    """Primary source: Yahoo Finance — tries multiple ticker aliases."""
+    aliases = YAHOO_ALIASES.get(ticker, [ticker])
+    all_attempts = [ticker] + [a for a in aliases if a != ticker]
+    # Remove duplicates preserving order
+    seen = set()
+    attempts = []
+    for a in all_attempts:
+        if a not in seen:
+            seen.add(a)
+            attempts.append(a)
+
+    for yf_ticker in attempts:
+        log.info(f"  Trying yfinance: {yf_ticker}")
+        result = _try_yfinance(yf_ticker, years)
+        if result:
+            _save_cache(ticker, result)
+            return result, f"yfinance ({yf_ticker})"
+        time.sleep(0.3)  # Rate limit courtesy
+
+    return None, f"yfinance: all aliases failed {attempts}"
 
 
 def fetch_monthly_returns_stooq(ticker, years=11):
     """Fallback source: Stooq.com CSV API."""
     try:
-        stooq_ticker = ticker.replace('.MI', '.IT').lower()
-        end = datetime.now()
-        start = end - timedelta(days=365 * years + 60)
-        url = f"https://stooq.com/q/d/l/?s={stooq_ticker}&d1={start.strftime('%Y%m%d')}&d2={end.strftime('%Y%m%d')}&i=m"
-        
-        resp = requests.get(url, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
-        if resp.status_code != 200 or len(resp.text) < 100:
-            return None, "stooq: bad response"
+        # Try multiple stooq ticker formats
+        stooq_attempts = []
+        if '.MI' in ticker:
+            base = ticker.replace('.MI', '')
+            stooq_attempts = [f"{base.lower()}.it", base.lower()]
+        else:
+            stooq_attempts = [ticker.lower(), f"{ticker.lower()}.us"]
 
-        from io import StringIO
-        df = pd.read_csv(StringIO(resp.text))
-        if 'Close' not in df.columns or len(df) < 24:
-            return None, "stooq: insufficient data"
+        for stooq_ticker in stooq_attempts:
+            end = datetime.now()
+            start = end - timedelta(days=365 * years + 60)
+            url = f"https://stooq.com/q/d/l/?s={stooq_ticker}&d1={start.strftime('%Y%m%d')}&d2={end.strftime('%Y%m%d')}&i=m"
+            
+            resp = requests.get(url, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
+            if resp.status_code != 200 or len(resp.text) < 100:
+                continue
 
-        df['Date'] = pd.to_datetime(df['Date'])
-        df = df.sort_values('Date')
-        df['Return'] = df['Close'].pct_change() * 100
-        df = df.dropna(subset=['Return'])
+            from io import StringIO
+            df = pd.read_csv(StringIO(resp.text))
+            if 'Close' not in df.columns or len(df) < 24:
+                continue
 
-        result = {}
-        for _, row in df.iterrows():
-            y, m = row['Date'].year, row['Date'].month
-            result[f"{y}-{m}"] = round(row['Return'], 2)
+            df['Date'] = pd.to_datetime(df['Date'])
+            df = df.sort_values('Date')
+            df['Return'] = df['Close'].pct_change() * 100
+            df = df.dropna(subset=['Return'])
 
-        _save_cache(ticker, result)
-        return result, "stooq"
+            result = {}
+            for _, row in df.iterrows():
+                y, m = row['Date'].year, row['Date'].month
+                result[f"{y}-{m}"] = round(row['Return'], 2)
+
+            if len(result) >= 24:
+                _save_cache(ticker, result)
+                return result, f"stooq ({stooq_ticker})"
 
     except Exception as e:
         log.warning(f"stooq failed for {ticker}: {e}")
-        return None, f"stooq error: {e}"
+    
+    return None, "stooq: all attempts failed"
+
+
+def fetch_monthly_returns_wsj(ticker, years=11):
+    """Fallback 3: Wall Street Journal / MarketWatch historical data API."""
+    try:
+        # Map to MarketWatch-style ticker
+        if '.MI' in ticker:
+            base = ticker.replace('.MI', '')
+            mw_ticker = f"it/{base.lower()}"
+            country = "it"
+        else:
+            mw_ticker = f"us/{ticker.lower()}"
+            country = "us"
+
+        end = datetime.now()
+        start = end - timedelta(days=365 * years + 60)
+        
+        # Try BigCharts/MarketWatch CSV endpoint
+        url = f"https://api.wsj.net/api/dylan/quotes/v2/comp/quoteByDialect?id={ticker}&needed=CompositeTrading&MaxInstrumentMatches=1&accept=application/json&EntitlementToken=cecc4267a0194af89ca343805a3e57af"
+        
+        # This likely won't work but we try - the real fallback is retry yfinance with delay
+        resp = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+        if resp.status_code == 200:
+            log.info(f"WSJ responded for {ticker}")
+        
+    except Exception:
+        pass
+    
+    return None, "wsj: unavailable"
+
+
+def fetch_monthly_returns_retry(ticker, years=11):
+    """Last resort: retry yfinance with longer timeout and daily data converted to monthly."""
+    try:
+        aliases = YAHOO_ALIASES.get(ticker, [ticker])
+        all_tickers = list(dict.fromkeys([ticker] + aliases))
+        
+        for yf_ticker in all_tickers:
+            log.info(f"  Retry with daily data: {yf_ticker}")
+            end = datetime.now()
+            start = end - timedelta(days=365 * years + 60)
+            
+            df = yf.download(yf_ticker, start=start.strftime('%Y-%m-%d'),
+                             end=end.strftime('%Y-%m-%d'), interval='1d',
+                             progress=False, timeout=30)
+            
+            if df is None or len(df) < 200:
+                continue
+
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
+
+            df = df[['Close']].dropna()
+            
+            # Resample daily to monthly (last business day of month)
+            monthly = df['Close'].resample('ME').last().dropna()
+            monthly_ret = monthly.pct_change().dropna() * 100
+            
+            result = {}
+            for date, ret in monthly_ret.items():
+                result[f"{date.year}-{date.month}"] = round(ret, 2)
+            
+            if len(result) >= 24:
+                _save_cache(ticker, result)
+                return result, f"yfinance-daily ({yf_ticker})"
+            
+            time.sleep(0.5)
+
+    except Exception as e:
+        log.warning(f"Retry failed for {ticker}: {e}")
+    
+    return None, "retry: all attempts failed"
 
 
 def fetch_monthly_returns(ticker):
-    """Fetch with cascading fallbacks. NEVER fabricate data."""
-    # Try yfinance
+    """Fetch with 4-level cascading fallbacks. NEVER fabricate data."""
+    # 1. Yahoo Finance (monthly interval, with aliases)
     data, src = fetch_monthly_returns_yfinance(ticker)
     if data:
         return data, src
 
-    # Try stooq
+    # 2. Stooq.com (multiple ticker formats)
     data, src = fetch_monthly_returns_stooq(ticker)
     if data:
         return data, src
 
-    # Try cache (stale is better than nothing, but flag it)
+    # 3. Yahoo Finance retry with daily data → resample to monthly
+    data, src = fetch_monthly_returns_retry(ticker)
+    if data:
+        return data, src
+
+    # 4. Cache (stale is better than nothing, but flag it)
     cached, age_h = _load_cache(ticker)
     if cached:
         log.info(f"Using cache for {ticker} (age: {age_h:.0f}h)")
         return cached, f"cache ({age_h:.0f}h old)"
 
     # FAIL — do NOT invent data
-    log.error(f"ALL SOURCES FAILED for {ticker}")
+    log.error(f"ALL 4 SOURCES FAILED for {ticker}")
     return None, "NO_DATA"
 
 
