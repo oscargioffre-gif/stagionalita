@@ -30,151 +30,240 @@ st.set_page_config(
 )
 
 # ═══════════════════════════════════════════════════════════════
-# CUSTOM CSS — Dark finance terminal aesthetic
+# CUSTOM CSS — HIGH CONTRAST NEON TERMINAL
 # ═══════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-:root {
-    --bg: #0a0e1a;
-    --sf: #111827;
-    --sf2: #1a2035;
-    --bd: #1e2a4a;
-    --tx: #e2e8f0;
-    --dm: #64748b;
-    --gn: #22d98c;
-    --rd: #f75c5c;
-    --yl: #ccff00;
-    --bl: #5888ff;
-    --gd: #ffc83a;
+/* ─── GLOBAL ─── */
+.stApp { background: #050810 !important; }
+* { -webkit-font-smoothing: antialiased; }
+
+/* ─── ALL TEXT BRIGHTER ─── */
+.stApp, .stApp p, .stApp span, .stApp label, .stApp div {
+    color: #f1f5f9 !important;
 }
+.stMarkdown p { color: #f1f5f9 !important; font-size: 16px !important; line-height: 1.6 !important; }
+.stMarkdown strong, .stMarkdown b { color: #ffffff !important; }
 
-.stApp { background: var(--bg) !important; }
-
-/* Hero header */
+/* ─── HERO ─── */
 .hero-box {
-    background: linear-gradient(135deg, #0a0e1a 0%, #111d3a 50%, #0a1628 100%);
-    border: 1px solid #1e2a4a;
-    border-radius: 16px;
-    padding: 28px 32px;
-    margin-bottom: 20px;
+    background: linear-gradient(145deg, #080c1c 0%, #0f1a3d 40%, #0a1230 100%);
+    border: 1px solid rgba(204,255,0,0.15);
+    border-radius: 20px;
+    padding: clamp(20px, 5vw, 40px);
+    margin-bottom: 24px;
     position: relative;
     overflow: hidden;
 }
 .hero-box::before {
     content: '';
     position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(204,255,0,0.04) 0%, transparent 70%);
+    top: -40%;
+    right: -15%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(204,255,0,0.06) 0%, transparent 65%);
     pointer-events: none;
 }
+.hero-box::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(88,136,255,0.05) 0%, transparent 65%);
+    pointer-events: none;
+}
+.flag-row { display: flex; gap: 12px; margin-bottom: 8px; }
+.flag { font-size: clamp(32px, 5vw, 44px); filter: drop-shadow(0 0 8px rgba(255,255,255,0.15)); }
 .hero-title {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 32px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(28px, 6vw, 48px);
     font-weight: 700;
-    letter-spacing: -0.5px;
-    margin: 0 0 4px 0;
-    color: #e2e8f0;
+    letter-spacing: -1px;
+    margin: 0 0 8px 0;
+    color: #ffffff !important;
+    line-height: 1.1;
 }
-.hero-title .yl { color: #ccff00; }
-.hero-title .bl { color: #5888ff; }
+.hero-title .yl { 
+    color: #ccff00 !important;
+    text-shadow: 0 0 20px rgba(204,255,0,0.35), 0 0 60px rgba(204,255,0,0.1);
+}
+.hero-title .bl { 
+    color: #6ea8ff !important;
+    text-shadow: 0 0 20px rgba(110,168,255,0.3);
+}
+.hero-title .wh {
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(255,255,255,0.15);
+}
 .hero-sub {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: #64748b;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(14px, 2.5vw, 18px);
+    color: #94a3b8 !important;
     margin: 0;
+    line-height: 1.5;
 }
-.flag-row { display: flex; gap: 10px; margin-top: 10px; }
-.flag { font-size: 28px; }
 
-/* Metric cards */
-.metric-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
-.metric-card {
-    background: #111827;
-    border: 1px solid #1e2a4a;
-    border-radius: 10px;
-    padding: 14px 18px;
-    min-width: 120px;
-    flex: 1;
+/* ─── METRICS (st.metric override) ─── */
+div[data-testid="stMetric"] {
+    background: linear-gradient(145deg, #0d1425, #111d38) !important;
+    border: 1px solid rgba(88,136,255,0.15) !important;
+    border-radius: 14px !important;
+    padding: 18px 16px !important;
 }
-.metric-card .label {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
+div[data-testid="stMetric"] label {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: clamp(12px, 2vw, 15px) !important;
+    font-weight: 600 !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px !important;
 }
-.metric-card .value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 22px;
-    font-weight: 700;
-    color: #e2e8f0;
+div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: clamp(26px, 5vw, 38px) !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 15px rgba(255,255,255,0.1);
 }
-.metric-card .value.gn { color: #22d98c; }
-.metric-card .value.rd { color: #f75c5c; }
-.metric-card .value.yl { color: #ccff00; }
-.metric-card .value.bl { color: #5888ff; }
 
-/* Table styling */
-.pattern-row {
-    background: #111827;
-    border: 1px solid #1e2a4a;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    transition: background 0.15s;
-    cursor: pointer;
-}
-.pattern-row:hover { background: #1a2035; border-color: #2a3a5a; }
-
-.badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 11px;
-}
-.badge.up { background: rgba(34,217,140,0.1); color: #22d98c; border: 1px solid rgba(34,217,140,0.25); }
-.badge.dn { background: rgba(247,92,92,0.1); color: #f75c5c; border: 1px solid rgba(247,92,92,0.25); }
-.badge.mi { background: rgba(255,200,58,0.1); color: #ffc83a; border: 1px solid rgba(255,200,58,0.25); }
-.badge.nq { background: rgba(88,136,255,0.1); color: #5888ff; border: 1px solid rgba(88,136,255,0.25); }
-
-.source-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-.source-tag.ok { background: rgba(34,217,140,0.1); color: #22d98c; }
-.source-tag.warn { background: rgba(255,200,58,0.1); color: #ffc83a; }
-.source-tag.err { background: rgba(247,92,92,0.1); color: #f75c5c; }
-
-/* Sidebar */
+/* ─── SIDEBAR ─── */
 section[data-testid="stSidebar"] {
-    background: #0d1220 !important;
-    border-right: 1px solid #1e2a4a !important;
+    background: #070b18 !important;
+    border-right: 1px solid #1a2545 !important;
+}
+section[data-testid="stSidebar"] .stMarkdown p,
+section[data-testid="stSidebar"] label {
+    font-size: 15px !important;
+    color: #cbd5e1 !important;
+}
+section[data-testid="stSidebar"] .stSelectbox label {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    color: #64748b !important;
 }
 
-/* Hide streamlit branding */
+/* ─── EXPANDERS (pattern rows) ─── */
+div[data-testid="stExpander"] {
+    background: linear-gradient(145deg, #0a1020, #0f1730) !important;
+    border: 1px solid #1a2a50 !important;
+    border-radius: 14px !important;
+    margin-bottom: 10px !important;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+div[data-testid="stExpander"]:hover {
+    border-color: rgba(204,255,0,0.25) !important;
+}
+div[data-testid="stExpander"] summary {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: clamp(14px, 2.5vw, 17px) !important;
+    font-weight: 600 !important;
+    color: #f1f5f9 !important;
+    padding: 16px 20px !important;
+    line-height: 1.5 !important;
+}
+div[data-testid="stExpander"] summary span {
+    color: #f1f5f9 !important;
+}
+div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
+    padding: 12px 20px 20px !important;
+    border-top: 1px solid #1a2a50 !important;
+}
+
+/* ─── INFO BOX (cause) ─── */
+div[data-testid="stAlert"] {
+    background: linear-gradient(135deg, rgba(204,255,0,0.06), rgba(88,136,255,0.04)) !important;
+    border: 1px solid rgba(204,255,0,0.15) !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+    color: #e2e8f0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #ccff00, #99cc00) !important;
+    color: #050810 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px 24px !important;
+    text-shadow: none !important;
+    box-shadow: 0 0 20px rgba(204,255,0,0.2);
+    transition: box-shadow 0.2s, transform 0.1s;
+}
+.stButton > button[kind="primary"]:hover {
+    box-shadow: 0 0 30px rgba(204,255,0,0.35) !important;
+    transform: translateY(-1px);
+}
+
+/* ─── SELECTBOX ─── */
+div[data-testid="stSelectbox"] > div > div {
+    background: #0d1425 !important;
+    border: 1px solid #1a2a50 !important;
+    border-radius: 10px !important;
+    color: #f1f5f9 !important;
+    font-size: 15px !important;
+}
+
+/* ─── SORT DROPDOWN ─── */
+.stSelectbox { margin-bottom: 16px; }
+
+/* ─── MARKDOWN HEADERS ─── */
+.stMarkdown h3 {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: clamp(20px, 3.5vw, 26px) !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(255,255,255,0.08);
+}
+.stMarkdown h1, .stMarkdown h2 {
+    color: #ffffff !important;
+}
+
+/* ─── DIVIDER ─── */
+hr { border-color: #1a2545 !important; }
+
+/* ─── PROGRESS BAR ─── */
+.stProgress > div > div > div {
+    background: linear-gradient(90deg, #ccff00, #88ff44) !important;
+}
+
+/* ─── MOBILE RESPONSIVE ─── */
+@media (max-width: 768px) {
+    .hero-box { padding: 18px !important; border-radius: 14px; }
+    div[data-testid="stMetric"] { padding: 12px 10px !important; }
+    div[data-testid="stExpander"] summary { padding: 12px 14px !important; font-size: 14px !important; }
+    .stMarkdown p { font-size: 15px !important; }
+    div[data-testid="stMetric"] div[data-testid="stMetricValue"] { font-size: 24px !important; }
+    div[data-testid="column"] { min-width: 48% !important; }
+}
+
+/* ─── HIDE STREAMLIT CHROME ─── */
 #MainMenu, footer, header { visibility: hidden; }
 div[data-testid="stDecoration"] { display: none; }
 
-/* Expander fix */
-.streamlit-expanderHeader {
-    background: #111827 !important;
-    border: 1px solid #1e2a4a !important;
-    border-radius: 8px !important;
-    color: #e2e8f0 !important;
+/* ─── FOOTER ─── */
+.app-footer {
+    text-align: center;
+    padding: 24px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.8;
+    border-top: 1px solid #1a2545;
+    margin-top: 20px;
 }
+.app-footer b { color: #94a3b8; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -185,8 +274,8 @@ div[data-testid="stDecoration"] { display: none; }
 st.markdown("""
 <div class="hero-box">
     <div class="flag-row"><span class="flag">🇮🇹</span><span class="flag">🇺🇸</span></div>
-    <h1 class="hero-title"><span class="yl">STAGIONALITÀ</span> — <span class="bl">Milano</span> & NASDAQ</h1>
-    <p class="hero-sub">Pattern mensili statisticamente significativi · Dati aggiornati da Yahoo Finance · Nessun dato inventato</p>
+    <h1 class="hero-title"><span class="yl">STAGIONALITÀ</span> <span class="wh">—</span> <span class="bl">Milano</span> <span class="wh">&</span> <span class="wh">NASDAQ</span></h1>
+    <p class="hero-sub">Pattern mensili statisticamente significativi · Dati reali da Yahoo Finance · Zero dati inventati</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -390,21 +479,25 @@ for idx, row in filtered.iterrows():
             fig.add_trace(go.Bar(
                 x=labels, y=vals,
                 marker_color=colors,
+                marker_line_width=0,
                 text=[f"{v:+.1f}%" if v != 0 else "—" for v in vals],
                 textposition='outside',
-                textfont=dict(family='JetBrains Mono', size=11, color='#e2e8f0'),
+                textfont=dict(family='JetBrains Mono', size=14, color='#ffffff'),
             ))
             fig.update_layout(
-                title=f"{row['ticker']} — {row['month_name']} — Rendimento anno per anno",
-                title_font=dict(family='DM Sans', size=14, color='#94a3b8'),
-                plot_bgcolor='#0a0e1a',
-                paper_bgcolor='#0a0e1a',
-                font=dict(family='JetBrains Mono', color='#94a3b8'),
-                xaxis=dict(gridcolor='#1e2a4a', title=None),
-                yaxis=dict(gridcolor='#1e2a4a', title="Rendimento %", zeroline=True, zerolinecolor='#2a3a5a'),
-                height=320,
-                margin=dict(l=50, r=20, t=50, b=40),
+                title=dict(text=f"📊 {row['ticker']} — {row['month_name']} — Anno per anno",
+                           font=dict(family='Space Grotesk', size=18, color='#ffffff')),
+                plot_bgcolor='#050810',
+                paper_bgcolor='#050810',
+                font=dict(family='JetBrains Mono', size=13, color='#cbd5e1'),
+                xaxis=dict(gridcolor='#1a2545', title=None, tickfont=dict(size=13, color='#e2e8f0')),
+                yaxis=dict(gridcolor='#1a2545', title="Rendimento %", zeroline=True, 
+                          zerolinecolor='#2a3a5a', zerolinewidth=2,
+                          tickfont=dict(size=12, color='#cbd5e1')),
+                height=360,
+                margin=dict(l=60, r=20, t=60, b=50),
                 showlegend=False,
+                bargap=0.2,
             )
             # Add mean line
             mean_val = row['mean_return']
@@ -452,22 +545,24 @@ if len(filtered) > 0:
             x=month_labels,
             y=heat_data.index,
             colorscale=[
-                [0, '#7f1d1d'], [0.3, '#991b1b'], [0.45, '#1e2a4a'],
-                [0.55, '#1e2a4a'], [0.7, '#065f46'], [1, '#047857']
+                [0, '#991b1b'], [0.35, '#7f1d1d'], [0.45, '#1a2035'],
+                [0.55, '#1a2035'], [0.65, '#065f46'], [1, '#059669']
             ],
             zmid=0,
             text=[[f"{v:+.1f}%" if v != 0 else "" for v in row] for row in heat_data.values],
             texttemplate="%{text}",
-            textfont=dict(size=10, family='JetBrains Mono'),
-            hovertemplate="Ticker: %{y}<br>Mese: %{x}<br>Rendimento: %{z:+.1f}%<extra></extra>",
-            colorbar=dict(title="Rend.%", tickfont=dict(color='#94a3b8')),
+            textfont=dict(size=12, family='JetBrains Mono', color='#ffffff'),
+            hovertemplate="<b>%{y}</b><br>Mese: %{x}<br>Rendimento: %{z:+.1f}%<extra></extra>",
+            colorbar=dict(title=dict(text="Rend.%", font=dict(color='#cbd5e1', size=13)),
+                         tickfont=dict(color='#cbd5e1', size=11)),
         ))
         fig_heat.update_layout(
-            plot_bgcolor='#0a0e1a', paper_bgcolor='#0a0e1a',
-            font=dict(family='JetBrains Mono', color='#94a3b8'),
-            height=max(300, len(heat_data) * 28),
-            margin=dict(l=120, r=40, t=20, b=40),
-            xaxis=dict(side='top'),
+            plot_bgcolor='#050810', paper_bgcolor='#050810',
+            font=dict(family='JetBrains Mono', size=13, color='#e2e8f0'),
+            height=max(350, len(heat_data) * 32),
+            margin=dict(l=130, r=40, t=30, b=40),
+            xaxis=dict(side='top', tickfont=dict(size=14, color='#ffffff')),
+            yaxis=dict(tickfont=dict(size=12, color='#e2e8f0')),
         )
         st.plotly_chart(fig_heat, use_container_width=True)
 
@@ -477,10 +572,10 @@ if len(filtered) > 0:
 # ═══════════════════════════════════════════════════════════════
 st.markdown("---")
 st.markdown("""
-<div style="text-align:center;padding:16px;font-size:11px;color:#475569;line-height:1.7">
-⚠️ <b>NOTA METODOLOGICA</b> — Tutti i rendimenti sono calcolati su prezzi di chiusura mensili.<br>
-Significatività statistica via t-test a una coda (H₀: μ=0). Soglia: p < 0.10 e consistenza ≥ 60%.<br>
-Dati forniti da Yahoo Finance / Stooq. Nessun dato è inventato o approssimato.<br>
-<b>Non costituisce consiglio finanziario.</b> I rendimenti passati non sono garanzia di risultati futuri.
+<div class="app-footer">
+⚠️ <b>NOTA METODOLOGICA</b> — Rendimenti calcolati su prezzi di chiusura mensili.<br>
+Significatività statistica via t-test (H₀: μ=0). Soglia: p &lt; 0.10 e consistenza ≥ 60%.<br>
+Dati forniti da Yahoo Finance / Stooq. <b>Nessun dato è inventato o approssimato.</b><br>
+Non costituisce consiglio finanziario. I rendimenti passati non sono garanzia di risultati futuri.
 </div>
 """, unsafe_allow_html=True)
