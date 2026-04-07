@@ -401,6 +401,74 @@ if errors:
 
 
 # ═══════════════════════════════════════════════════════════════
+# LEGEND
+# ═══════════════════════════════════════════════════════════════
+st.markdown("---")
+st.markdown("""
+<div style="background:linear-gradient(145deg,#0c1225,#111d38);border:1px solid #1a2a50;border-radius:16px;padding:clamp(16px,3vw,28px);margin:8px 0 20px 0;">
+<h3 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(18px,3vw,22px);font-weight:700;color:#ffffff;margin:0 0 16px 0;">
+📖 Come leggere i dati
+</h3>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+
+<div style="background:#0a0f1e;border:1px solid #1a2545;border-radius:12px;padding:16px;">
+<div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#ccff00;margin-bottom:8px;">🟢 Pallino Verde = Rialzo</div>
+<div style="font-size:14px;color:#cbd5e1;line-height:1.6;">
+Il titolo in quel mese è <b style="color:#22d98c;">salito in media</b> negli ultimi 10 anni.<br>
+Es: <code style="color:#22d98c;">+4.86%</code> = in media il titolo è salito del 4.86% in quel mese.
+</div>
+</div>
+
+<div style="background:#0a0f1e;border:1px solid #1a2545;border-radius:12px;padding:16px;">
+<div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#f75c5c;margin-bottom:8px;">🔴 Pallino Rosso = Ribasso</div>
+<div style="font-size:14px;color:#cbd5e1;line-height:1.6;">
+Il titolo in quel mese è <b style="color:#f75c5c;">sceso in media</b> negli ultimi 10 anni.<br>
+Es: <code style="color:#f75c5c;">-7.08%</code> = in media il titolo è sceso del 7.08% in quel mese.
+</div>
+</div>
+
+<div style="background:#0a0f1e;border:1px solid #1a2545;border-radius:12px;padding:16px;">
+<div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#6ea8ff;margin-bottom:8px;">📊 P-value = Quanto è affidabile</div>
+<div style="font-size:14px;color:#cbd5e1;line-height:1.6;">
+Misura la probabilità che il pattern sia dovuto al <b>caso</b>.<br>
+<span style="color:#22d98c;">★★ p &lt; 0.05</span> → forte (meno del 5% di probabilità sia caso)<br>
+<span style="color:#ffc83a;">★ p &lt; 0.10</span> → moderato (meno del 10%)<br>
+<b>Più basso = più affidabile.</b>
+</div>
+</div>
+
+<div style="background:#0a0f1e;border:1px solid #1a2545;border-radius:12px;padding:16px;">
+<div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#ffc83a;margin-bottom:8px;">📈 Consistenza = Quante volte si ripete</div>
+<div style="font-size:14px;color:#cbd5e1;line-height:1.6;">
+Percentuale di anni in cui il titolo si è mosso nella <b>stessa direzione</b>.<br>
+Es: <code>90%</code> = in 9 anni su 10 il titolo è salito (o sceso) in quel mese.<br>
+<b>Più alto = più regolare.</b>
+</div>
+</div>
+
+<div style="background:#0a0f1e;border:1px solid #1a2545;border-radius:12px;padding:16px;">
+<div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#ffffff;margin-bottom:8px;">💡 Come usare questi dati</div>
+<div style="font-size:14px;color:#cbd5e1;line-height:1.6;">
+Cerca pattern con <b style="color:#22d98c;">p-value basso</b> (★★) e <b style="color:#ffc83a;">consistenza alta</b> (&gt;80%).<br>
+Clicca su ogni riga per vedere il <b>grafico anno per anno</b> e verificare se il pattern è stabile o distorto da un singolo anno anomalo.
+</div>
+</div>
+
+<div style="background:#0a0f1e;border:1px solid #1a2545;border-radius:12px;padding:16px;">
+<div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#ffffff;margin-bottom:8px;">⚠️ Attenzione</div>
+<div style="font-size:14px;color:#cbd5e1;line-height:1.6;">
+I pattern stagionali sono <b>tendenze storiche</b>, non previsioni certe.<br>
+Un evento imprevisto (crisi, guerra, pandemia) può rompere qualsiasi pattern.<br>
+<b>Mai investire solo sulla base di stagionalità.</b>
+</div>
+</div>
+
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+# ═══════════════════════════════════════════════════════════════
 # MAIN TABLE
 # ═══════════════════════════════════════════════════════════════
 st.markdown("---")
