@@ -199,9 +199,9 @@ with st.sidebar:
     
     market_filter = st.selectbox("Mercato", ["Tutti", "Milano", "NASDAQ"])
     direction_filter = st.selectbox("Direzione", ["Tutti", "▲ Rialzo", "▼ Ribasso"])
-    month_filter = st.selectbox("Mese", ["Tutti"] + [f"{i} - {MN[i]}" for i, MN in enumerate(
-        ['','Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
-         'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'], 0) if i > 0])
+    MESI_FULL = ['','Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                 'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']
+    month_filter = st.selectbox("Mese", ["Tutti"] + [f"{i} - {MESI_FULL[i]}" for i in range(1, 13)])
     
     sectors = sorted(set(s["sector"] for s in STOCKS.values()))
     sector_filter = st.selectbox("Settore", ["Tutti"] + sectors)
